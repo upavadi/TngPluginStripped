@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: TNG Wordpress Integration Use
+Plugin Name: TNG Wordpress Integration Stripped
 Plugin URI: http://tng.lythgoes.net/wiki/index.php?title=Using_TNG_and_WordPress_with_the_tng-wordpress-plugin
 Description: Integrates TNG (The Next Generation of Genealogy) with Wordpress. TNG v9 compatibility added by Darrin Lythgoe.
 Author: Mark Barnes with additions by Darrin Lythgoe and Roger Moffat
