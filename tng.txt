@@ -1,0 +1,196 @@
+LogOut disabled:
+function mbtng_logout() {
+	global $rootpath;
+	$tng_folder = get_option('mbtng_path'); 
+	//chdir($tng_folder);
+// this next line causes blank page if Integrated Logins is checked
+// fixed by changing line 10 of begin.php to include_once not include
+	//include("begin.php");
+	//if ($_SESSION['currentuser'] != '')
+		//include('logout.php');
+}
+/********* Ignore above *******************/
+function mbtng_initialise () {
+	global $wp_query;
+	// if (get_option('mbtng_url') == '' && get_option('mbtng_wordpress_page') != '')
+	// 	mbtng_update_tng_url(); // Remove these two lines when out of beta
+	// if (get_option('mbtng_redirect_login'))
+	// 	add_filter('login_redirect','mbtng_redirect_login', 10, 3);		// Redirects user back to referrer page, not dashboard
+	// if (get_option('mbtng_integrate_logins')) {							// Adds integration actions only if needed
+	// 	add_action('login_head', 'mbtng_login_head');					// Adds styles to login header
+	// 	add_action('register_form', 'mbtng_register_form');				// Adds additional fields to Wordpress registration form
+	// 	add_action('register_post', 'mbtng_check_fields', 10, 3);		// Checks required fields are completed during registration
+	// 	add_action('user_register', 'mbtng_register_user', 10, 1);		// Adds a new user to the TNG database when a user is created in Wordpress
+	// 	add_action('delete_user', 'mbtng_delete_user', 10, 1);			// Deletes TNG users when deleted from Wordpress
+	// 	add_action('wp_authenticate', 'mbtng_intercept_login', 10, 1);	// Checks if a TNG user exists if Wordpress login unsuccessful
+	// }
+	if (mbtng_display_page()) {
+		add_filter('the_posts','mbtng_fake_post');						// Return the Wordpress TNG page if any TNG page is requested
+		add_action('template_redirect', 'mbtng_buffer_start');			// Intercept front-end to buffer output
+		add_action('wp_head', 'mbtng_frontend_header');					// Adds TNG template <head> to WordPress <head>
+		add_action('loop_start', 'mbtng_output_page');					// Outputs the TNG page when required
+		add_action('loop_end', 'mbtng_discard_output');					// Discards post contents if TNG is displayed
+		add_action('wp_footer', 'mbtng_frontend_footer');				// Adds TNG template footer to Wordpress footer
+		add_action('shutdown', 'mbtng_buffer_end');						// Flushes output buffer
+		// if (get_option('mbtng_integrate_logins'))
+		// 	if (is_user_logged_in()) 
+		// 		mbtng_login();											// Ensures user is logged into TNG
+		// 	else
+		// 		mbtng_logout();											// Ensures user is logged out of TNG
+	}
+}
+/*******************************/
+
+/************************************************
+*                                               *
+*                USER FUNCTIONS                 *
+*                                               *
+* mbtng_create_user                             *
+* mbtng_check_user                              *
+* mbtng_delete_user                             *
+************************************************/
+
+// Adds a new TNG user and returns the username
+// function mbtng_create_user($user_ID, $realname='', $tree='') {
+// 	global $users_table, $trees_table, $tngconfig;
+// 	$tng_folder = get_option('mbtng_path');
+// 	chdir($tng_folder);
+// 	include_once('pwdlib.php');
+// 	$user_info = get_userdata($user_ID);
+// 	$link = mbtng_db_connect() or exit;
+// 	$query = "SELECT userID FROM $users_table WHERE email='{$user_info->user_email}'";
+// 	$result = mysql_query($query) or die ("Cannot execute query in tng.php: $query");
+// 	$found = mysql_num_rows($result);
+// 	if ($found == 0) {
+// 		mbtng_close_tng_table();
+// 		if ($realname == '')
+// 			$realname = trim(get_user_meta($user_ID, 'nickname', true));
+// 		$password_type = PasswordType();   // the current encryption setting
+// 		$password = wp_generate_password();
+
+// 		//$password = md5(wp_generate_password());
+// 		$email = $user_info->user_email;
+// 		$username = $user_info->user_login;
+// 		$time_offset = get_option('gmt_offset');
+// 		if (get_magic_quotes_gpc() == 0) {
+// 			$username = addslashes($username);
+// 			$password = addslashes($password);
+// 			$realname = addslashes($realname);
+// 			$email = addslashes($email);
+// 		}
+
+// 		if(!$tree && $tngconfig['autotree']) {
+// 			$query = "SELECT MAX(0+SUBSTRING(gedcom,5)) as oldID FROM $trees_table WHERE gedcom LIKE \"tree%\"";
+// 			$result = mysql_query($query) or die ("Cannot execute query in tng.php: $query");
+// 			if(mysql_num_rows) {
+// 				$maxrow = mysql_fetch_array( $result );
+// 				$gedcom = "tree" . ($maxrow['oldID'] + 1);
+// 			}
+// 			else
+// 				$gedcom = "tree1";
+// 			mysql_free_result($result);
+
+// 			$query = "INSERT IGNORE INTO $trees_table (gedcom,treename,description,owner,email,address,city,state,country,zip,phone,secret,disallowgedcreate) VALUES (\"$gedcom\",\"$realname\",\"\",\"$realname\",\"$email\",\"\",\"\",\"\",\"\",\"\",\"\",\"0\",\"0\")";
+// 			$result = mysql_query($query) or die ("Cannot execute query in tng.php: $query");
+// 		}
+// 		else
+// 			$gedcom = $assignedtree ? $assignedtree : $tree;
+
+// 		$today = date("Y-m-d H:i:s", time() + (3600*$time_offset));
+// 		$i=0;
+// 		$found=1;
+// 		$link = mbtng_db_connect() or exit;
+// 		while ($found !=0) {
+// 			if ($i !=0)
+// 				$username = $username.$i;
+// 			$query = "SELECT username FROM $users_table WHERE username='{$username}'";
+// 			$result = mysql_query($query) or die ("Cannot execute query in tng.php: $query");
+// 			$found = mysql_num_rows($result);
+// 			$i++;
+// 		}
+// 		if (isset($user_info->user_level) && $user_info->user_level == 10) {
+// 			$password = PasswordEncode($password, $password_type);  // encrypt with the current encryption setting
+// 			$query = "INSERT INTO $users_table (description,username,password,password_type,realname,email,gedcom,allow_edit,allow_add,allow_delete,allow_lds,allow_ged,allow_living,allow_private,dt_registered) VALUES (\"$realname\",\"$username\",\"$password\",\"$password_type\",\"$realname\",\"$email\",\"$gedcom\",1,1,1,1,1,1,1,\"$today\")";
+// 		}
+// 		else {
+// 			if($tngconfig['autoapp']) {
+// 				$allow_livingprivate_val = 0;
+// 				$password = PasswordEncode($password, $password_type);
+// 			}
+// 			else {
+// 				$allow_livingprivate_val = -1;
+// 			}
+// 			$query = "INSERT INTO $users_table (description,username,password,password_type,realname,email,gedcom,allow_living,allow_private,dt_registered) VALUES (\"$realname\",\"$username\",\"$password\",\"$password_type\",\"$realname\",\"$email\",\"$gedcom\",$allow_livingprivate_val,$allow_livingprivate_val,\"$today\")";
+// 		}
+// 		$result = mysql_query($query) or die (mysql_errno($link) . ": " . mysql_error($link). "\n Query:\n".$query);
+// 		$success = mysql_insert_id($link);
+// 		mbtng_close_tng_table();
+// 		update_user_meta($user_ID, 'tng_user_id', $success);
+// 		return mbtng_login();
+// 	}
+// 	elseif ($found == 1) {
+// 		$row = mysql_fetch_assoc($result);
+// 		mbtng_close_tng_table();
+// 		update_user_meta($user_ID, 'tng_user_id', $row['userID']);
+// 		return $row['userID'];
+// 	}
+// 	else
+// 		wp_die('There is more than one user with that email address in TNG. Wordpress only supports one account per e-mail address.');
+// }
+
+// Checks to see if user exists in TNG. If it does, returns the username.
+// function mbtng_check_user($user_ID) {
+// 	if(!$user_ID)
+// 		return "";
+// 	global $users_table;
+// 	$tng_user_ID = get_user_meta($user_ID, 'tng_user_id', true);
+// 	if ($tng_user_ID == '')
+// 		return mbtng_create_user($user_ID); //User doesn't exist, or link not created
+// 	else {
+// 		$link = mbtng_db_connect() or exit;
+// 		$query = "SELECT username FROM $users_table WHERE userID='{$tng_user_ID}'";
+// 		$result = mysql_query($query) or die ("Cannot execute query in tng.php: $query");
+// 		$row = mysql_fetch_assoc($result);
+// 		$found = mysql_num_rows($result);
+// 		mbtng_close_tng_table();
+// 		if($found == 0) {
+// 			delete_user_meta($user_ID, 'tng_user_id'); // Link is invalid
+// 			return mbtng_create_user($user_ID);
+// 		}
+// 		else
+// 			return $row['username']; // Link is correct
+// 	}
+// }
+
+// Deletes TNG users when deleted from Wordpress
+// function mbtng_delete_user($user_ID) {
+// 	global $users_table;
+// 	$tng_user_id = get_user_meta($user_ID, 'tng_user_id', true);
+// 	if ($tng_user_id != '') {
+// 		$tng_folder = get_option('mbtng_path');
+// 		chdir($tng_folder);
+// 		$link = mbtng_db_connect() or exit;
+// 		$query = "DELETE FROM $users_table WHERE userID='{$tng_user_id}'";
+// 		$result = mysql_query($query) or die ("Cannot execute query in tng.php: $query");
+// 		mbtng_close_tng_table();
+// 	}
+// }
+/**********************/
+
+//Compatibility for WP 2.9
+// if (!function_exists('get_user_meta')) {
+// 	function get_user_meta ($user_id, $key, $single) {
+// 		return get_metadata('user', $user_id, $key, $single);
+// 	}
+// }
+
+/* TO DO
+========
+Get it working with non-pretty permalinks
+Find error in cemeteries page
+Make it work with the home page
+*/
+
+GLOBAL VARIABLES
+<?php GLOBAL $tng_title, $tng_version, $tng_date, $tng_copyright, $session_charset, $sitename, $dates, $cms, $templatepath, $text, $sitever, $tngdomain, $tngconfig, $isConnected, $tree, $admtext, $mylanguage, $language, $newbrowser, $people_table, $families_table, $temp_events_table, $assignedbranch, $assignedtree, $notelinks_table, $xnotes_table, $gotmore, $gotnotes, $gotcites, $row, $dims, $noclass, $currentform, $currentuser, $children_table, $currentuserdesc, $rootpath, $time_offset, $subroot, $page, $totalpages, $orgtree, $albumID, $searchstring, $mediatypeID, $hsstat, $cemeteryID, $modspath, $extspath, $backuppath, $largechunk, $fileflag, $husbgender, $wifegender, $branch, $branchlinks_table, $overwrite, $branchaction, $done, $counter, $fcounter, $fdone, $dagens, $agens, $dospouses, $dgens, $key, $insert, $oldm, $newm, $mess, $modded, $dna_groups_table, $meventID, $righttree, $surnamesarr, $surnamesexc, $pass1, $atsurnamesarr, $atsurnamesexc, $perID, $numgens, $ImageFileTypes, $subdir, $img, $path, $tngpath, $pagetotal, $allow_delete, $folders, $namedir, $datedir, $order, $dispnameorder, $dispdateorder, $citations_table, $allsources, $lineending, $address_table, $events_table, $eventtypes_table, $xnotes, $savestate, $fp, $saveimport, $saveimport_table, $citations, $exliving, $exprivate, $media_table, $medialinks_table, $expdir, $exppath, $incl, $resume, $mediatypeObjs, $branchmedia, $assoc_table, $lnprefixes, $branchstr, $templeready, $exprivatestr, $exlivingstr, $sources_table, $allrepos, $repositories_table, $placelist, $places_table, $prefix, $medialinks, $albumlinks, $album2entities_table, $link, $gedpath, $savegedfilename, $basefilename, $lineinfo, $custeventlist, $eventctr, $alreadygot, $mediaID, $maxsearchresults, $mediatypes_assoc, $mediapath, $p1row, $p2row, $languages_path, $ldsOK, $cfirstname, $clastname, $cbirthdate, $cbirthplace, $cdeathdate, $cdeathplace, $cignoreblanks, $csoundex, $ccombinenotes, $r1row, $r2row, $s1row, $s2row, $cshorttitle, $clongtitle, $cauthor, $cpublisher, $crepoID, $cactualtext, $thumbmaxw, $mostwanted_table, $allow_add, $allow_edit, $thumbprefix, $thumbsuffix, $totalImported, $factcols, $cellnumber, $familyID, $photopath, $photosext, $allow_living, $firstsection, $livedefault, $totcols, $nonames, $personID, $names, $famnames, $pedigree, $parentset, $generations, $display, $people, $familylist, $families, $branches_table, $cemeteries_table, $countries_table, $languages_table, $reports_table, $states_table, $tlevents_table, $trees_table, $users_table, $albums_table, $albumlinks_table, $mediatypes_table, $dna_tests_table, $dna_links_table, $templates_table, $type, $showalbum_url, $events, $nodate, $eventctr_all, $nodate_all, $rights, $mediasearch, $browsealbums_noargs_url, $branchsearch, $orgmediatypeID, $browsemedia_url, $tnggallery, $notesearch, $reposearch, $responsivetables, $tabletype, $enablemodeswitch, $enableminimap, $sourcesearch, $photosearch, $treesearch, $testsearch, $test_type, $admin_login, $text_setting, $ldsdefault, $allow_private, $allow_lds, $rightbranch, $disallowgedcreate, $allowpdf, $prev, $birth, $cousin_marriages_table, $primaryID, $print_time, $topmarker, $descend_url, $botmarker, $spouseoffset, $maxwidth, $maxheight, $getperson_url, $numboxes, $rounded, $slot, $chart, $vslots, $vendspouses, $needtop, $starttop, $spouses_for_next_gen, $desctracker_url, $divctr, $excolimg, $descendtext_url, $imgtitle, $browser, $childcount, $totkids, $more, $boxheight, $boxwidth, $columns, $pedmax, $col1fam, $col2fam, $showall, $family_url, $familychart, $downarrow, $uparrow, $flags, $allowgedcom, $allow_lds_this, $tentative_edit, $tentedit_url, $placelinkbegin, $placelinkend, $familygroup_url, $allwhere, $querystring, $criteria_limit, $criteria_count, $change_limit, $cutoffstr, $wherestr, $showsource_url, $showrepo_url, $placesearch_url, $showmedia_url, $userlist, $documentpath, $headstonepath, $historypath, $header, $footer, $mediatypes_display, $whatsnew, $wherestr2, $showmap_url, $altstr, $maxmediafilesize, $maxgcgen, $indarray, $famarray, $gotfamily, $private, $stdevents, $fciteevents, $stdnotes, $notecount, $custevents, $today, $tngimpcfg, $trim_it, $trimsize, $burialtype, $allcount, $fstat, $writeinterval, $old, $assignnames, $wholepath, $imagetypes, $locimppath, $mediatypes_locpaths, $historytypes, $documenttypes, $videotypes, $recordingtypes, $decodearr, $mminfo, $max_note_length, $num_medialinks, $num_albumlinks, $pciteevents, $lnpfxnum, $specpfx, $newprefixes, $orgprefixes, $custommeta, $customheader, $tngprint, $site_desc, $map, $templatenum, $tmp, $http, $fbOGimage, $pageURL, $customfooter, $dbowner, $thumbmaxh, $mediatypes_thumbs, $target, $allow_admin, $allow_ged, $emailaddr, $homepage, $allow_profile, $gotlastpage, $findmenulinks, $mediatypes, $mediamenulinks, $infomenulinks, $chooselang, $custommenu, $custmenu, $custommobilemenu, $custommenulinks, $customshare, $requirelogin, $treerestrict, $numtrees, $htmldocs, $notrunc, $session_language, $base_url, $phpversion, $foundzoom, $nameorder, $_SERVER, $tngpage, $test_group, $endrootpath, $locations2map, $l2mCount, $pinplacelevel0, $defermap, $relationships, $exusers, $mediatypes_icons, $mediatypes_like, $mctr, $suggest_url, $gotImageJpeg, $pedoptions, $boxes, $offpageimgh, $offpageimgw, $marrdate, $marrplace, $pedigree_url, $citationsctr, $citedisplay, $citedispctr, $citestring, $eventswithnotes, $pinplacelevel1, $pinplacelevel2, $pinplacelevel3, $pinplacelevel4, $pinplacelevel5, $pinplacelevel6, $notestogether, $entity, $tableid, $indnotes, $famnotes, $srcnotes, $reponotes, $indmedia, $fammedia, $srcmedia, $repomedia, $indalbums, $famalbums, $srcalbums, $repoalbums, $eventcounter, $num_collapsed, $datewidth, $firstsectionsave, $offset, $psearch, $psearchns, $urlstring, $showtree_url, $namesort, $datesort, $pwd_hasher, $gender1, $gender2, $namestr, $namestr2, $gens, $personID1, $primarypersonID, $totalRelationships, $needmore, $maxrels, $session_norels, $targetID, $maxupgen, $highest, $secondpersonID, $msg, $otherID, $disallowspouses, $lowest, $j, $infoDescend, $numbering, $genperpage, $numgen, $startnum, $getPlace, $citesources, $pdf, $paperdim, $lftmrg, $rtmrg, $lineheight, $rptFont, $rptFontSize, $lblFontSize, $labelwidth, $botmrg, $citefontsub, $textindent, $linehalf, $font_list, $topmrg, $mybool, $mybooltext, $dontdo, $cejoin, $noneliving, $noneprivate, $all, $ordernum, $allow_media_edit, $albumname, $linktype, $usefolder, $size, $histories_url, $description, $medialinkID, $albumlinkID, $showextended, $info, $need_families, $cejoins, $evfields, $familyfields_nonss, $badtables, $ratio, $textpart, $tng_notinstalled, $envelope, $titleConfig, $footerConfig, $langstr, $timezone, $width, $spacing, $height, $gedcom, $person_count, $fontsize, $start_person, $containerheight, $logout_url; ?>
+
