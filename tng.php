@@ -5,8 +5,8 @@ Plugin URI: http://tng.lythgoes.net/wiki/index.php?title=Using_TNG_and_WordPress
 Description: Integrates TNG (The Next Generation of Genealogy) with Wordpress. TNG v9 compatibility added by Darrin Lythgoe.
 Author: Mark Barnes with additions by Darrin Lythgoe and Roger Moffat CHANGES BY @MAHESH
 Updated by: Darrin Lythgoe and Roger Moffat, 2011-2016
+changes to remove login-log-out, registration, widgets etc by Mahesh Upadhyaya @mahesh 2022
 Version: 11.0.1
-changes to remove login etc @mahesh
 Author URI: 
 Copyright (c) 2008 Mark Barnes 2011-2016 Darrin Lythgoe and Roger Moffat
 This program is free software: you can redistribute it and/or modify
