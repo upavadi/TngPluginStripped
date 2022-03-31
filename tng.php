@@ -5,7 +5,8 @@ Plugin URI: http://tng.lythgoes.net/wiki/index.php?title=Using_TNG_and_WordPress
 Description: Integrates TNG (The Next Generation of Genealogy) with Wordpress. TNG v9 compatibility added by Darrin Lythgoe.
 Author: Mark Barnes with additions by Darrin Lythgoe and Roger Moffat CHANGES BY @MAHESH
 Updated by: Darrin Lythgoe and Roger Moffat, 2011-2016
-changes to remove login-log-out, registration, widgets etc by Mahesh Upadhyaya @mahesh 2022
+
+changes to remove login-log-out, registration, widgets etc by Mahesh Upadhyaya, @mahesh, 2022
 Version: 11.0.1
 Author URI: 
 Copyright (c) 2008 Mark Barnes 2011-2016 Darrin Lythgoe and Roger Moffat
@@ -114,18 +115,6 @@ function mbtng_serve_static_files () {
 // Add additional actions only if required
 function mbtng_initialise () {
 	global $wp_query;
-
-
-
-
-
-
-
-
-
-
-
-    
 	if (mbtng_display_page()) {
 		add_filter('the_posts','mbtng_fake_post');						// Return the Wordpress TNG page if any TNG page is requested
 		add_action('template_redirect', 'mbtng_buffer_start');			// Intercept front-end to buffer output
@@ -149,11 +138,6 @@ function mbtng_initialise () {
 * mbtng_options                                 *
 * mbtng_display_tng_admin                       *
 ************************************************/
-
-
-
-
-
 //Adds the TNG menu to Wordpress admin
 //Icon from FamFamFam: http://www.famfamfam.com/lab/icons/silk/
 function mbtng_add_admin_page () {
@@ -311,25 +295,7 @@ echo "\t\t\t<td width=\"200\" style=\"padding: 0.5em 0\">Show TNG on:</td>\n";
 	echo "\t\t\t<td style=\"padding: 0.5em 0\"><input type=\"text\" name=\"mbtng_url_to_admin\" value=\"".get_option('mbtng_url_to_admin')."\" size=\"50\" \><br/>This is the URL to the TNG Admin page inside the TNG folder. So if you've put TNG into a folder called tng in your site's root folder it will be of the form http://YourSite.com/tng/admin.php</td>\n";
 	echo "\t\t</tr>\n";
 //End or Roger addition
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-echo "\t\t<tr>\n";
+	echo "\t\t<tr>\n";
 	echo "\t\t</tr>\n";
 	echo "\t\t<tr>\n";
 	echo "\t\t\t<td>&nbsp;</td>\n";
@@ -386,358 +352,6 @@ function mbtng_display_tng_admin ($echo='') {
 	// else
 	// 	echo $iframe;
 }
-
-
-/************************************************
-*                                               *
-*           LOG-IN/REGISTER FUNCTIONS           *
-*                                               *
-* mbtng_login_head                              *
-* mbtng_register_form                           *
-* mbtng_check_fields                            *
-* mbtng_intercept_login                         *
-* mbtng_register_user                           *
-* mbtng_login                                   *
-* mbtng_logout                                  *
-* mbtng_redirect_login                          *
-************************************************/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/************************************************
-*                                               *
-*                USER FUNCTIONS                 *
-*                                               *
-* mbtng_create_user                             *
-* mbtng_check_user                              *
-* mbtng_delete_user                             *
-************************************************/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /************************************************
 *                                               *
@@ -841,19 +455,6 @@ function mbtng_buffer_start() {
 		}
 	}
 }
- 
-
-
-
-
-
-
-
-
-
-
-
-
 
 //Flushes the output buffer
 function mbtng_buffer_end() {
@@ -943,7 +544,6 @@ function mbtng_extension () {
 function mbtng_filename () {
 	return substr(mbtng_requested(),1);
 }
-
 
 /************************************************
 *                                               *
