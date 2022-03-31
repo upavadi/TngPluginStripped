@@ -3,9 +3,10 @@
 Plugin Name: TNG Wordpress Integration Stripped
 Plugin URI: http://tng.lythgoes.net/wiki/index.php?title=Using_TNG_and_WordPress_with_the_tng-wordpress-plugin
 Description: Integrates TNG (The Next Generation of Genealogy) with Wordpress. TNG v9 compatibility added by Darrin Lythgoe.
-Author: Mark Barnes with additions by Darrin Lythgoe and Roger Moffat
+Author: Mark Barnes with additions by Darrin Lythgoe and Roger Moffat CHANGES BY @MAHESH
 Updated by: Darrin Lythgoe and Roger Moffat, 2011-2016
-Version: 10.1.1
+Version: 11.0.1
+changes to remove login etc @mahesh
 Author URI: 
 Copyright (c) 2008 Mark Barnes 2011-2016 Darrin Lythgoe and Roger Moffat
 This program is free software: you can redistribute it and/or modify
@@ -42,11 +43,13 @@ CONTENTS
 add_action('plugins_loaded', 'mbtng_serve_static_files');				// Serves static files (.jpg, .css, etc.) as soon as possible
 
 // Serves static files, if requested. Runs initialisation if not.
+global $current_dir;
 function mbtng_serve_static_files () {
-	//session_start();
+	$current_dir = basename(__DIR__) ;
+	session_start();
 	if (isset($_REQUEST['update_globalvars'])) {
 		mbtng_rewrite_globalvars();
-		header('Location: '.get_bloginfo('wpurl').'/wp-admin/admin.php?page=tng-wordpress-plugin/tng.php&updated=globalvars');
+		header('Location: '.get_bloginfo('wpurl').'/wp-admin/admin.php?page='. $current_dir. '/tng.php&updated=globalvars');
 		die();
 	}
 	if (isset($_REQUEST['tng_search'])) {
@@ -111,8 +114,8 @@ function mbtng_serve_static_files () {
 // Add additional actions only if required
 function mbtng_initialise () {
 	global $wp_query;
-	//  if (get_option('mbtng_url') == '' && get_option('mbtng_wordpress_page') != '')
-	//  	mbtng_update_tng_url(); // Remove these two lines when out of beta
+	// if (get_option('mbtng_url') == '' && get_option('mbtng_wordpress_page') != '')
+	// 	mbtng_update_tng_url(); // Remove these two lines when out of beta
 	// if (get_option('mbtng_redirect_login'))
 	// 	add_filter('login_redirect','mbtng_redirect_login', 10, 3);		// Redirects user back to referrer page, not dashboard
 	// if (get_option('mbtng_integrate_logins')) {							// Adds integration actions only if needed
@@ -131,12 +134,12 @@ function mbtng_initialise () {
 		add_action('loop_end', 'mbtng_discard_output');					// Discards post contents if TNG is displayed
 		add_action('wp_footer', 'mbtng_frontend_footer');				// Adds TNG template footer to Wordpress footer
 		add_action('shutdown', 'mbtng_buffer_end');						// Flushes output buffer
-		// if (get_option('mbtng_integrate_logins'))
-		// 	if (is_user_logged_in()) 
-		// 		mbtng_login();											// Ensures user is logged into TNG
-		// 	else
-		// 		mbtng_logout();											// Ensures user is logged out of TNG
-	}
+	// 	if (get_option('mbtng_integrate_logins'))
+	// 		if (is_user_logged_in()) 
+	// 			mbtng_login();											// Ensures user is logged into TNG
+	// 		else
+	// 			mbtng_logout();											// Ensures user is logged out of TNG
+	 }
 }
 
 /************************************************
@@ -154,7 +157,7 @@ function mbtng_initialise () {
 //Adds the TNG menu to Wordpress admin
 //Icon from FamFamFam: http://www.famfamfam.com/lab/icons/silk/
 function mbtng_add_admin_page () {
-	add_menu_page('TNG', 'TNG', 'manage_options', __FILE__, 'mbtng_options', plugins_url('tng-wordpress-plugin/icon.png'));
+	add_menu_page('TNG', 'TNG', 'manage_options', __FILE__, 'mbtng_options', plugins_url($current_dir. '/icon.png'));
 	add_submenu_page (__FILE__, 'Options', 'Options', 'manage_options', __FILE__, 'mbtng_options');
 // Roger comment out the next line to remove Admin from WordPress Admin sidebar
 //	add_submenu_page (__FILE__, 'Admin', 'Admin', 'manage_options', 'tng-wordpress-plugin/admin.php', 'mbtng_display_tng_admin');
@@ -168,9 +171,9 @@ function mbtng_options_reminder() {
 		mbtng_rewrite_globalvars();
 	}
 	if (get_option('mbtng_wordpress_page')=='')
-		echo '<div id="message" class="updated"><p><b>In order to make TNG visible, you must go to <a href="'.get_bloginfo('wpurl').'/wp-admin/admin.php?page=tng-wordpress-plugin/tng.php">TNG options</a>, and specify a page where TNG will be displayed on your site.</b></div>';
+		echo '<div id="message" class="updated"><p><b>In order to make TNG visible, you must go to <a href="'.get_bloginfo('wpurl').'/wp-admin/admin.php?page='.$current_dir. '/tng.php">TNG options</a>, and specify a page where TNG will be displayed on your site.</b></div>';
 	if (!mbtng_correct_path())
-		echo '<div id="message" class="error"><p><b>Warning:</b> TNG cannot be found in '.get_option('mbtng_path').' - please <a href="'.get_bloginfo('wpurl').'/wp-admin/admin.php?page=tng-wordpress-plugin/tng.php">specify the full (absolute) path</a> to your TNG installation, or <a href="'.get_bloginfo('wpurl').'?tng_search">automatically search for the correct folder</a>.</p></div>';
+		echo '<div id="message" class="error"><p><b>Warning:</b> TNG cannot be found in '.get_option('mbtng_path').' - please <a href="'.get_bloginfo('wpurl').'/wp-admin/admin.php?page='. $current_dir. '/tng.php">specify the full (absolute) path</a> to your TNG installation, or <a href="'.get_bloginfo('wpurl').'?tng_search">automatically search for the correct folder</a>.</p></div>';
 }
 
 //Searches server for TNG files
@@ -197,7 +200,7 @@ function mbtng_search_for_tng ($path = '', $go_back = true) {
 			elseif ($element != "." && $element != "..") {
 				if ($element == 'ahnentafel.php' && mbtng_correct_path($path)) {
 					update_option('mbtng_path', mbtng_folder_trailingslashit($path));
-					header('Location: '.get_bloginfo('wpurl').'/wp-admin/admin.php?page=tng-wordpress-plugin/tng.php&updated=search');
+					header('Location: '.get_bloginfo('wpurl').'/wp-admin/admin.php?page='. $current_dir. '/tng.php&updated=search');
 					die();
 				}
 			}
@@ -312,8 +315,8 @@ echo "\t\t\t<td width=\"200\" style=\"padding: 0.5em 0\">Show TNG on:</td>\n";
 	// echo "\t\t\t<td style=\"padding: 0.5em 0\"valign=\"top\">Integrate TNG/Wordpress logins:&nbsp;</td>\n";
 	// echo "\t\t\t<td style=\"padding: 0.5em 0\"><input type=\"checkbox\" name=\"mbtng_integrate_logins\"";
 	// if (get_option('mbtng_integrate_logins')) echo "checked='checked'";
-	//echo "\></td>\n";
-	//echo "\t\t</tr>\n";
+	// echo "\></td>\n";
+	// echo "\t\t</tr>\n";
 	// if (version_compare($wp_version, '2.6.1', '>')) {
 	// 	echo "\t\t<tr>\n";
 	// 	echo "\t\t\t<td style=\"padding: 0.5em 0\"valign=\"top\">Redirect successful login to referrer page:&nbsp;</td>\n";
@@ -326,7 +329,7 @@ echo "\t\t\t<td width=\"200\" style=\"padding: 0.5em 0\">Show TNG on:</td>\n";
 	// echo "\t\t\t<td style=\"padding: 0.5em 0\"valign=\"top\">Replace TNG homepage with Wordpress page:&nbsp;</td>\n";
 	// echo "\t\t\t<td style=\"padding: 0.5em 0\"><input type=\"checkbox\" name=\"mbtng_use_wordpress_homepage\"";
 	// if (get_option('mbtng_use_wordpress_homepage')) echo "checked='checked'";
-	echo "\></td>\n";
+	//echo "\></td>\n";
 	echo "\t\t</tr>\n";
 	echo "\t\t<tr>\n";
 	echo "\t\t\t<td>&nbsp;</td>\n";
@@ -335,8 +338,8 @@ echo "\t\t\t<td width=\"200\" style=\"padding: 0.5em 0\">Show TNG on:</td>\n";
 	wp_nonce_field('update-options');
 	echo "<input type=\"hidden\" name=\"action\" value=\"update\" />";
 // Roger added new variable mbtng_url_to_admin here to store path directly to TNG Admin
-	// echo "<input type=\"hidden\" name=\"page_options\" value=\"mbtng_wordpress_page, mbtng_path, mbtng_integrate_logins, mbtng_redirect_login, mbtng_use_wordpress_homepage, mbtng_url_to_admin\" />";
-echo "<input type=\"hidden\" name=\"page_options\" value=\"mbtng_wordpress_page, mbtng_path, mbtng_url_to_admin\" />"; //replace above line
+	//echo "<input type=\"hidden\" name=\"page_options\" value=\"mbtng_wordpress_page, mbtng_path, mbtng_integrate_logins, mbtng_redirect_login, mbtng_use_wordpress_homepage, mbtng_url_to_admin\" />";
+
 	echo "</form>\n";
 	echo "\t</table>\n";
 	echo "<h3>Advanced</h3>\n";
@@ -359,7 +362,7 @@ echo "<input type=\"hidden\" name=\"page_options\" value=\"mbtng_wordpress_page,
 	$tng_folder = get_option('mbtng_path');
 	chdir($tng_folder);
 	//include("begin.php");
-	echo "<h3>TNG Admin</h3>\n";
+	//echo "<h3>TNG Admin</h3>\n";
 	echo "<form method=\"post\">\n";
 	echo "\t<table width=\"800\">\n";
 	echo "<tr>\n";
@@ -370,7 +373,7 @@ echo "<input type=\"hidden\" name=\"page_options\" value=\"mbtng_wordpress_page,
 	echo "</table>\n";
 	echo "</form>\n";
 // End of additions for TNG Admin Link
-
+echo "Get Integrated Login";
 }
 
 //Displays TNG admin in an iframe
@@ -520,8 +523,8 @@ function mbtng_display_tng_admin ($echo='') {
 // 		$textpart = "login";
 // 		include($cms['tngpath'] . "getlang.php");
 // 		$tngconfig['maint'] = "";
-// // Roger - Next line commented out per Darrin and Chuck Bush
-// //		include_once($cms['tngpath'] . "genlib.php");
+// Roger - Next line commented out per Darrin and Chuck Bush
+//		include_once($cms['tngpath'] . "genlib.php");
 // 		mbtng_db_connect() or exit;
 // 		$query = "SELECT * FROM $users_table WHERE username='{$tng_user_name}'";
 // 		$result = mysql_query($query) or die ("Cannot execute query in tng.php: $query");
@@ -747,19 +750,19 @@ function mbtng_display_tng_admin ($echo='') {
 * mbtng_discard_output                          *
 * mbtng_eval_php                                *
 ************************************************/
-
+//need this function to draw the page
 function mbtng_use_tng_homepage() {
-// 	if (get_option('mbtng_use_wordpress_homepage')==TRUE && mbtng_requested_url() == get_option('mbtng_url'))
-// 		return false;
-// 	else
-	return true;// keep this until I work out what it means
- }
+	if (get_option('mbtng_use_wordpress_homepage')==TRUE && mbtng_requested_url() == get_option('mbtng_url'))
+		return false;
+	else
+		return true;
+}
 
 //Adds TNG header to Wordpress header
 function mbtng_frontend_header() {
 	global $tng_head, $languages_path;
 // Roger - if you want to over-ride these styles, copy these lines to mytngstyle.css and change them there
-	$tng_head = "<!-- TNG-WordPress-Plugin v10.1.1 -->
+	$tng_head = "<!-- ". $current_dir. " v11.0 -->
 	<style type=\"text/css\">
 	#tng_main {line-height: 1.2em}
 /* next line removed for desctracker.php display issues */
@@ -940,15 +943,150 @@ function mbtng_filename () {
 	return substr(mbtng_requested(),1);
 }
 
+/************************************************
+*                                               *
+*               WIDGET FUNCTIONS                *
+*                                               *
+* mbtng_widget_init                             *
+* mbtng_check_parent                            *
+* mbtng_display_widget                          *
+* mbtng_output_search                           *
+* mbtng_output_menu                             *
+* mbtng_output_template_menu                    *
+* mbtng_base_url                                *
+************************************************/
 
+// Initialise the widget
+function mbtng_widget_init() {
+	wp_register_sidebar_widget('mbtng_output_search', 'TNG search', 'mbtng_output_search', array('classname' => 'mbtng_output_search', 'description' => 'Displays the TNG search in the sidebar.'));
+	wp_register_sidebar_widget('mbtng_output_menu', 'TNG menu', 'mbtng_output_menu', array('classname' => 'mbtng_output_menu', 'description' => 'Displays the TNG menu in the sidebar.'));
+}
+
+// Returns true if page is descendant of TNG page
+function mbtng_check_parent($check_id = -10) {
+	global $post, $wpdb;
+	if ($check_id == -10)
+		$check_id = $post->ID;
+	if ($check_id == get_option('mbtng_wordpress_page'))
+		return true;
+	elseif ($check_id == 0)
+		return false;
+	else {
+		$parent = $wpdb->get_var("SELECT post_parent FROM {$wpdb->prefix}posts WHERE id='{$check_id}'");
+		return mbtng_check_parent($parent);
+	}
+}
+
+// Returns true if the widgets should be displayed
+function mbtng_display_widget() {
+	if (mbtng_display_page())
+		return true;
+	else
+		return mbtng_check_parent();
+}
+
+//Outputs the TNG search in the sidebar
+function mbtng_output_search ($args) {
+	global $languages_path;
+// Change the next line to "if (!mbtng_display_widget(() {"
+// to show the TNG search in the sidebar of NON-TNG pages
+	if (mbtng_display_widget()) {
+		extract($args);
+		$tng_folder = get_option('mbtng_path');
+		chdir($tng_folder);
+		include('begin.php');
+		include_once($cms['tngpath'] . "genlib.php");
+		include($cms['tngpath'] . "getlang.php");
+		include($cms['tngpath'] . "{$mylanguage}/text.php");
+		echo $before_widget;
+		echo $before_title.'Genealogy Database Search'.$after_title;
+		$base_url = mbtng_base_url();
+		echo "<form action=\"{$base_url}search.php\" method=\"post\">\n";
+		echo "<table class=\"menuback\">\n";
+		echo "<tr><td><span class=\"normal\">{$text['mnulastname']}:<br /><input type=\"text\" name=\"mylastname\" class=\"searchbox\" size=\"14\" /></span></td></tr>\n";
+		echo "<tr><td><span class=\"normal\">{$text['mnufirstname']}:<br /><input type=\"text\" name=\"myfirstname\" class=\"searchbox\" size=\"14\" /></span></td></tr>\n";
+		echo "<tr><td><input type=\"hidden\" name=\"mybool\" value=\"AND\" /><input type=\"submit\" name=\"search\" value=\"{$text['mnusearchfornames']}\" class=\"small\" /></td></tr>\n";
+		echo "</table>\n";
+		echo "</form>\n";
+		echo "<ul>\n";
+		echo "<li style=\"font-weight:bold\"><a href=\"{$base_url}searchform.php\">{$text['mnuadvancedsearch']}</a></li>\n";
+		echo "</ul>\n";
+		echo $after_widget;
+	}
+}
+
+//Outputs the TNG menu in the sidebar
+function mbtng_output_menu ($args) {
+// John Lisle commented out next line, added lines 2 and 3 after this
+//	global $allow_admin, $languages_path; 
+	global $languages_path; // John Lisle
+	$allow_admin = $_SESSION['allow_admin']; // John Lisle
+//  the next line is to display the widgets NOT on the TNG page
+	if (!mbtng_display_widget()) {
+		extract($args);
+		$tng_folder = get_option('mbtng_path');
+		chdir($tng_folder);
+		include('begin.php');
+		include_once($cms['tngpath'] . "genlib.php");
+		include($cms['tngpath'] . "getlang.php");
+		include($cms['tngpath'] . "{$mylanguage}/text.php");
+		echo $before_widget;
+		echo $before_title.'Genealogy Menu'.$after_title;
+		$base_url = mbtng_base_url();
+		echo "<ul>\n";
+		echo "<li class=\"surnames\" style=\"font-weight:bold\"><a href=\"{$base_url}surnames.php\">{$text['mnulastnames']}</a></li>\n";
+		echo "</ul>\n";
+		echo "<ul style=\"margin-top:0.75em\">\n";
+		echo "<li class=\"whatsnew\"><a href=\"{$base_url}whatsnew.php\">{$text['mnuwhatsnew']}</a></li>\n";
+		echo "<li class=\"mostwanted\"><a href=\"{$base_url}mostwanted.php\">{$text['mostwanted']}</a></li>\n";
+		echo "<li class=\"media\"><a href=\"{$base_url}browsemedia.php\">{$text['allmedia']}</a>\n";
+			echo "<ul>\n";
+			echo "<li class=\"photos\"><a href=\"{$base_url}browsemedia.php?mediatypeID=photos\">{$text['mnuphotos']}</a></li>\n";
+			echo "<li class=\"histories\"><a href=\"{$base_url}browsemedia.php?mediatypeID=histories\">{$text['mnuhistories']}</a></li>\n";
+			echo "<li class=\"documents\"><a href=\"{$base_url}browsemedia.php?mediatypeID=documents\">{$text['documents']}</a></li>\n";
+			echo "<li class=\"videos\"><a href=\"{$base_url}browsemedia.php?mediatypeID=videos\">{$text['videos']}</a></li>\n";
+			echo "<li class=\"recordings\"><a href=\"{$base_url}browsemedia.php?mediatypeID=recordings\">{$text['recordings']}</a></li>\n";
+			echo "</ul></li>";
+		echo "<li class=\"albums\"><a href=\"{$base_url}browsealbums.php\">{$text['albums']}</a></li>\n";
+		echo "<li class=\"cemeteries\"><a href=\"{$base_url}cemeteries.php\">{$text['mnucemeteries']}</a></li>\n";
+		echo "<li class=\"heastones\"><a href=\"{$base_url}browsemedia.php?mediatypeID=headstones\">{$text['mnutombstones']}</a></li>\n";
+		echo "<li class=\"places\"><a href=\"{$base_url}places.php\">{$text['places']}</a></li>\n";
+		echo "<li class=\"notes\"><a href=\"{$base_url}browsenotes.php\">{$text['notes']}</a></li>\n";
+		echo "<li class=\"anniversaries\"><a href=\"{$base_url}anniversaries.php\">{$text['anniversaries']}</a></li>\n";
+		echo "<li class=\"reports\"><a href=\"{$base_url}reports.php\">{$text['mnureports']}</a></li>\n";
+		echo "<li class=\"sources\"><a href=\"{$base_url}browsesources.php\">{$text['mnusources']}</a></li>\n";
+		echo "<li class=\"repos\"><a href=\"{$base_url}browserepos.php\">{$text['repositories']}</a></li>\n";
+		echo "<li class=\"trees\"><a href=\"{$base_url}browsetrees.php\">{$text['mnustatistics']}</a></li>\n";
+		echo "<li class=\"language\"><a href=\"{$base_url}changelanguage.php\">{$text['mnulanguage']}</a></li>\n";
+		if ($allow_admin) {
+			echo "<li class=\"showlog\"><a href=\"{$base_url}showlog.php\">{$text['mnushowlog']}</a></li>\n";
+			echo "<li class=\"admin\"><a href=\"{$base_url}admin.php\">{$text['mnuadmin']}</a></li>\n";
+		}
+		echo "<li class=\"bookmarks\"><a href=\"{$base_url}bookmarks.php\">{$text['bookmarks']}</a></li>\n";
+		echo "<li class=\"suggest\"><a href=\"{$base_url}suggest.php\">{$text['contactus']}</a></li>\n";
+		echo "</ul>\n";
+		echo "<ul style=\"margin-top:0.75em\">\n";
+		if (!is_user_logged_in()) {
+			echo "<li class=\"register\" style=\"font-weight:bold\"><a href=\"{$base_url}newacctform.php\">{$text['mnuregister']}</a></li>\n";
+			echo "<li class=\"login\" style=\"font-weight:bold\"><a href=\"{$base_url}login.php\">{$text['mnulogon']}</a></li>\n";
+		} else {
+			if (function_exists('wp_logout_url'))
+				echo "<li class=\"logout\" style=\"font-weight:bold\"><a href=\"".html_entity_decode(wp_logout_url())."\">{$text['logout']}</a></li>\n";
+			else
+				echo "<li class=\"logout\" style=\"font-weight:bold\"><a href=\"".trailingslashit(get_bloginfo('wpurl'))."wp-login.php?action=logout"."\">{$text['logout']}</a></li>\n";
+		}
+		echo "</ul>";
+		echo $after_widget;
+	}
+}
 
 //Returns a full URL only if required
-//function mbtng_base_url () {
-	// if (!mbtng_display_page())
-	// 	return get_permalink(get_option('mbtng_wordpress_page'));
-	// else
-	//	return '';
-//}
+// function mbtng_base_url () {
+// 	if (!mbtng_display_page())
+// 		return get_permalink(get_option('mbtng_wordpress_page'));
+// 	else
+// 		return '';
+// }
 
 /************************************************
 *                                               *
@@ -1140,3 +1278,18 @@ if(!function_exists('mime_content_type')) {
 		}
 	}
 }
+
+//Compatibility for WP 2.9
+if (!function_exists('get_user_meta')) {
+	function get_user_meta ($user_id, $key, $single) {
+		return get_metadata('user', $user_id, $key, $single);
+	}
+}
+
+/* TO DO
+========
+Get it working with non-pretty permalinks
+Find error in cemeteries page
+Make it work with the home page
+*/
+?>
