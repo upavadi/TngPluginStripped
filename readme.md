@@ -1,21 +1,30 @@
 # **TNG / Wordpress integration** # 
 
-## **Download**
-
-
+## **Files**
+- **readme.txt** - Original
+- **tng-original.php** - Version: 10.1.1 Updated by: Darrin Lythgoe and Roger Moffat
+- **tng-commented.php** Version: 11.0.0 redundant lines commented out by Maehsh
+- **tng_widgets.php** Repository for the widgets removed. Not sure whether these can be resurrected.
+- **tng.php** Version: 11.0.1. Stripped down version. 
 -----
+## **Description**
+Description: Integrates TNG (The Next Generation of Genealogy) with Wordpress. TNG v12-13 compatibility
+- Author: Mark Barnes with additions by Darrin Lythgoe and Roger Moffat 
+- Updated by: Darrin Lythgoe and Roger Moffat, 2011-2016
+- CHANGES FOR COMPACT VERSION BY Mahesh Upadhyaya @MAHESH
 
+---
 ## **License**
-The code is licenced under the [MIT licence](http://opensource.org/licenses/MIT)
+The code is licenced under the [GNU General Public License](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 ------------
 
-## **Introduction**
-This widget replicates the Wordpress login/log out task and also logs into TNG, [The Next Generation of Genealogy Sitebuilding](http://www.tngsitebuilding.com/).
-- Adds a Registration Form which may replace the Wordpress registration form by deselecting 'Membership>Anyone can register' in Wordpress Dashboard>Settings.
-- Adds a User Profile page which saves the changes in Wordpress and TNG database
-- Adds an enhanced Password-Reset module which checks for the presence of email of registered user.
-- Almost all the text used in pages and emails is customisable by the administrator.
-- ### **User may login using either registered user Name or email**. On successful login, if User Name exists in TNG database, the user is also logged in to TNG.
-- GDPR Privacy policy is implemented
+## **Compatibility**
+The plugin tested with
+- Wordpress 2.9
+- TNG V12 and TNG V13.0.2
+- PHP 7.4 and 8.0.1 
+- [Wordpress-TNG Login Widget Version 3.1.3.beta](https://github.com/upavadi/tng-wp-login/archive/refs/tags/3.1.3.beta.zip) 
 ---------------------
+## **Changes**
+
