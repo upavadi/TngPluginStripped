@@ -358,6 +358,7 @@ echo "\t\t\t<td width=\"200\" style=\"padding: 0.5em 0\">Show TNG on:</td>\n";
 	echo "</table>\n";
 	echo "</form>\n";
 // End of additions for TNG Admin Link
+echo "For Integrated Login/Logout you may want to try latest release of <a href='https://github.com/upavadi/tng-wp-login/' target='_blank'>Wordpress-TNG Login Widget</a>";
 
 }
 
