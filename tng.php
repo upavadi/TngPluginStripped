@@ -141,6 +141,7 @@ function mbtng_initialise () {
 //Adds the TNG menu to Wordpress admin
 //Icon from FamFamFam: http://www.famfamfam.com/lab/icons/silk/
 function mbtng_add_admin_page () {
+	static $current_dir;
 	add_menu_page('TNG', 'TNG', 'manage_options', __FILE__, 'mbtng_options', plugins_url($current_dir. '/icon.png'));
 	add_submenu_page (__FILE__, 'Options', 'Options', 'manage_options', __FILE__, 'mbtng_options');
 // Roger comment out the next line to remove Admin from WordPress Admin sidebar
@@ -295,7 +296,26 @@ echo "\t\t\t<td width=\"200\" style=\"padding: 0.5em 0\">Show TNG on:</td>\n";
 	echo "\t\t\t<td style=\"padding: 0.5em 0\"><input type=\"text\" name=\"mbtng_url_to_admin\" value=\"".get_option('mbtng_url_to_admin')."\" size=\"50\" \><br/>This is the URL to the TNG Admin page inside the TNG folder. So if you've put TNG into a folder called tng in your site's root folder it will be of the form http://YourSite.com/tng/admin.php</td>\n";
 	echo "\t\t</tr>\n";
 //End or Roger addition
+	//echo "\t\t<tr>\n";
+	//echo "\t\t\t<td style=\"padding: 0.5em 0\"valign=\"top\">Integrate TNG/Wordpress logins:&nbsp;</td>\n";
+	//echo "\t\t\t<td style=\"padding: 0.5em 0\"><input type=\"checkbox\" name=\"mbtng_integrate_logins\"";
+	//if (get_option('mbtng_integrate_logins')) echo "checked='checked'"; 
+	update_option('mbtng_integrate_logins', ""); // add this to get backward comatability - Mahesh
+	echo "\></td>\n";
+	echo "\t\t</tr>\n";
+	// if (version_compare($wp_version, '2.6.1', '>')) {
+	// 	echo "\t\t<tr>\n";
+	// 	echo "\t\t\t<td style=\"padding: 0.5em 0\"valign=\"top\">Redirect successful login to referrer page:&nbsp;</td>\n";
+	// 	echo "\t\t\t<td style=\"padding: 0.5em 0\"><input type=\"checkbox\" name=\"mbtng_redirect_login\"";
+	// 	//if (get_option('mbtng_redirect_login')) echo "checked='checked'";
+	// 	echo "\></td>\n";
+	// 	echo "\t\t</tr>\n";
+	// }
 	echo "\t\t<tr>\n";
+	//echo "\t\t\t<td style=\"padding: 0.5em 0\"valign=\"top\">Replace TNG homepage with Wordpress page:&nbsp;</td>\n";
+	//echo "\t\t\t<td style=\"padding: 0.5em 0\"><input type=\"checkbox\" name=\"mbtng_use_wordpress_homepage\"";
+	//if (get_option('mbtng_use_wordpress_homepage')) echo "checked='checked'";
+	echo "\></td>\n";
 	echo "\t\t</tr>\n";
 	echo "\t\t<tr>\n";
 	echo "\t\t\t<td>&nbsp;</td>\n";
@@ -304,8 +324,7 @@ echo "\t\t\t<td width=\"200\" style=\"padding: 0.5em 0\">Show TNG on:</td>\n";
 	wp_nonce_field('update-options');
 	echo "<input type=\"hidden\" name=\"action\" value=\"update\" />";
 // Roger added new variable mbtng_url_to_admin here to store path directly to TNG Admin
-	//echo "<input type=\"hidden\" name=\"page_options\" value=\"mbtng_wordpress_page, mbtng_path, mbtng_integrate_logins, mbtng_redirect_login, mbtng_use_wordpress_homepage, mbtng_url_to_admin\" />";
-
+	echo "<input type=\"hidden\" name=\"page_options\" value=\"mbtng_wordpress_page, mbtng_path, mbtng_integrate_logins, mbtng_redirect_login, mbtng_use_wordpress_homepage, mbtng_url_to_admin\" />";
 	echo "</form>\n";
 	echo "\t</table>\n";
 	echo "<h3>Advanced</h3>\n";
@@ -327,24 +346,24 @@ echo "\t\t\t<td width=\"200\" style=\"padding: 0.5em 0\">Show TNG on:</td>\n";
 // Roger changes here - these lines add link to open TNG Admin in new window
 	$tng_folder = get_option('mbtng_path');
 	chdir($tng_folder);
-	//include("begin.php");
-	//echo "<h3>TNG Admin</h3>\n";
+	include("begin.php");
+	echo "<h3>TNG Admin</h3>\n";
 	echo "<form method=\"post\">\n";
 	echo "\t<table width=\"800\">\n";
 	echo "<tr>\n";
 // Roger this next line uses the variable mbtng_url_to_admin direct to TNG Admin
-	echo "<td width=\"200\"><p class=\"submit\" style=\"padding:0\"><input type=\"submit\" name=\"GoToAdmin\" value=\"Go to TNG Admin\" onclick=\"newwindow=window.open('" . get_option(mbtng_url_to_admin) . "')\" style=\"margin-right:1em\"/></p></td>\n";
+	echo "<td width=\"200\"><p class=\"submit\" style=\"padding:0\"><input type=\"submit\" name=\"GoToAdmin\" value=\"Go to TNG Admin\" onclick=\"newwindow=window.open('" . get_option('mbtng_url_to_admin') . "')\" style=\"margin-right:1em\"/></p></td>\n";
 	echo "<td>Press this button to go to the TNG Admin area in a new window outside of the WordPress Admin environment.</td>\n";
 	echo "</tr>\n";
 	echo "</table>\n";
 	echo "</form>\n";
 // End of additions for TNG Admin Link
 
-    echo "For Integrated log-ins you may want to try <a href='https://github.com/upavadi/tng-wp-login/releases' target='_blank'><b>TNG Wordpress Login Widget</b></a>";
 }
 
 //Displays TNG admin in an iframe
 //Should consider javascript to set iframe height
+
 function mbtng_display_tng_admin ($echo='') {
 	// $iframe = '<iframe name="tng" id="tng" src ="'.trailingslashit(get_option('mbtng_url')).'admin.php?true" height = 2000 width="100%"></iframe>';
 	// if ($echo === false)
@@ -377,7 +396,7 @@ function mbtng_use_tng_homepage() {
 
 //Adds TNG header to Wordpress header
 function mbtng_frontend_header() {
-	global $tng_head, $languages_path;
+	global $tng_head, $current_dir;
 // Roger - if you want to over-ride these styles, copy these lines to mytngstyle.css and change them there
 	$tng_head = "<!-- ". $current_dir. " v11.0 -->
 	<style type=\"text/css\">
