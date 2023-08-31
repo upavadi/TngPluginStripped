@@ -1,12 +1,15 @@
 # **TNG / Wordpress integration** # 
+# **Warning:** Please note that this Plugin works on WordPress 6.2.2 BUT does NOT work with WordPress 6.3 - gives a 500 error and a blank page.
+Thread:
+https://tng.community/index.php?/forums/topic/17704-tng-wordpress-plugin-and-wordpress-63/#comment-96390
 
 ## **Files**
 - **readme.txt, tng.txt** - Original
 - **changes-mu.txt** - Log of changes in line numbers
-- **tng-original.php** - Version: 10.1.1 Updated by: Darrin Lythgoe and Roger Moffat
-- **tng-commented.php** Version: 11.0.0 redundant lines commented out by Maehsh
-- **tng_widgets.php** Repository for the widgets removed. Not sure whether these would be resurrected.
-- **tng.php** Version: 11.0.1. Stripped down version. 
+- **ref_files/tng-original.php** - Version: 10.1.1 Updated by: Darrin Lythgoe and Roger Moffat
+- **ref_files/tng-commented.php** Version: 11.0.0 redundant lines commented out by Maehsh
+- **ref_files/tng_widgets.php** Repository for the widgets removed. Not sure whether these would be resurrected.
+- **tng.php** Stripped Down Working Version: 11.0.1. 
 -----
 ## **Description**
 Description: Integrates TNG (The Next Generation of Genealogy) with Wordpress. TNG v12-13 compatibility
@@ -22,7 +25,7 @@ The code is licenced under the [GNU General Public License](https://www.gnu.org/
 
 ## **Compatibility**
 The plugin tested with
-- Wordpress 2.9
+- Wordpress 6.2.2
 - TNG V12 and TNG V13.0.2
 - PHP 7.4 and 8.0.1 
 - [Wordpress-TNG Login Widget Version 3.1.3.beta](https://github.com/upavadi/tng-wp-login/archive/refs/tags/3.1.3.beta.zip) 
